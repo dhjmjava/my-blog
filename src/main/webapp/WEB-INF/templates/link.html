@@ -1,0 +1,157 @@
+<!DOCTYPE html>  
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+     xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"> 
+<head>  
+<meta charset="UTF-8" />  
+<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/default/easyui.css}"/>
+<link rel="stylesheet" type="text/css" th:href="@{/easyui/themes/icon.css}"/>
+<script type="text/javascript" th:src="@{/easyui/jquery.min.js}"/>
+<script type="text/javascript" th:src="@{/easyui/jquery.easyui.min.js}"/>
+<title>Insert title here</title>  
+</head>  
+<body>  
+    <input id="link" style="width:200px;"/>
+    
+    <table id="links" title="MyLinks" class="easyui-datagrid" style="width:550px;height:250px"
+		url="/getAllLink"
+		toolbar="#toolbar"
+		rownumbers="true" fitColumns="true" singleSelect="true">
+	<thead>
+		<tr>
+			<th field="id" width="20">id</th>
+			<th field="name" width="30">name</th>
+			<th field="url" width="40">url</th>
+		</tr>
+	</thead>
+</table>
+<div id="toolbar">
+	<a href="#" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newLink()">New Link</a>
+	<!-- <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editLink()">Edit Link</a>
+	<a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyLink()">Remove Link</a> -->
+</div>
+
+<div id="dlg" class="easyui-dialog" style="width:400px;height:280px;padding:10px 20px"
+		closed="true" buttons="#dlg-buttons">
+	<div class="ftitle">User Information</div>
+	<form id="fm" method="post">
+		<div class="fitem">
+			<label>Link Name:</label>
+			<input name="name" class="easyui-validatebox" required="true"/>
+		</div>
+		<div class="fitem">
+			<label>URL:</label>
+			<input name="url" class="easyui-validatebox" required="true"/>
+		</div>
+		
+	</form>
+</div>
+<div id="dlg-buttons">
+	<a href="#" class="easyui-linkbutton" iconCls="icon-ok" onclick="saveLink()">保存</a>
+	<a href="#" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')">取消</a>
+</div>
+<hr/>
+<div>---------------------数据分页------------------------</div>
+<table id="linkGrid" title="My Links" style="width:550px;height:250px"
+		 url="/getAllLink" class="easyui-datagrid"
+		 iconCls="icon-save" pagination="true" rownumbers="true" fitColumns="true">
+	<thead>
+		<tr>
+			<th field="name" width="30">name</th>
+			<th field="url" width="40">url</th>
+		</tr>
+	</thead>
+</table>
+
+    
+    <script>
+    
+   
+      $(function(){
+    	  var pager = $("#linkGrid").datagrid("getPager");    // get the pager of datagrid
+    	  pager.pagination({
+    			showPageList:false,
+    			buttons:[{
+    				iconCls:'icon-remove',
+    				handler:function(){
+    					/* 获取选中的第一行数据  */
+    					var row = $("#linkGrid").datagrid("getSelected");
+    					/* 获取选中的所有数据  */
+    					var rows = $("#linkGrid").datagrid("getSelections");
+    					
+    					
+    					var ids=[];
+    					$.each(rows,function(index,val){
+    						ids.push(val.id);
+    					})
+    					var params= {"ids":ids};
+    					if(confirm("确认删除？")){
+    						$.ajax({
+    							url:'/deleteLink',
+    							dataType:'JSON',
+    							data:params,
+    							contentType:'application/json;charset=UTF-8',
+    							success:function(data){
+    								console.log(data);
+    							}
+    						})
+    					}
+    				}
+    			},{
+    				iconCls:'icon-add',
+    				handler:function(){
+   					  $("#dlg").dialog("open").dialog("setTitle","New Link");
+   			    	  $("#fm").form("clear");
+    				}
+    			},{
+    				iconCls:'icon-edit',
+    				handler:function(){
+    					alert('edit');
+    				}
+    			}],
+    			onBeforeRefresh:function(){
+    				alert('before refresh');
+    				return true;
+    			}
+    		});
+    	  
+    	  $.ajax({
+				type : 'POST',
+				url : "/getAllLink",
+				dataType : 'json',
+				success : function(data) {
+				},
+			}); 
+      })
+      
+      $("#link").combobox({
+    	  url:"/getAllLink",
+    	  required:true,
+    	  valueField:'id',
+    	  textField:'name',
+    	  missingMessage:'请选择link！！'
+      });
+      
+      function newLink(){
+    	  $("#dlg").dialog("open").dialog("setTitle","New Link");
+    	  $("#fm").form("clear");
+      }
+      
+      function saveLink(){
+    	  $('#fm').form('submit',{
+    			url:'/springbootDemo/saveLink',
+    			onSubmit: function(){
+    				return $(this).form('validate');
+    			},
+    			success: function(result){
+   					$("#dlg").dialog('close');		// close the dialog
+   					$("#linkGrid").datagrid('reload');	// reload the user data
+    				}
+    			});
+    		};
+    		
+     function deleteLink(){
+    	 
+     }
+    </script>
+</body>  
+</html>  
