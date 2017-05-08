@@ -23,7 +23,7 @@ public class SchedulingConfig {
 	
 	@Scheduled(cron = "0/10 * * * * ?") // 每10秒执行一次
 	public void saysomething(){
-		//System.out.println("定时任务开始！！");
+		System.out.println("定时任务开始！！");
 		//User user = userService.findUserById(1);
 		//System.out.println(user.getName());
 		//new BlogCache().setUserToCache();
